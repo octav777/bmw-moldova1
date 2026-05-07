@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adauga Anunt — BMW Moldova</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .add-hero {
+      padding: 130px 4rem 3rem;
+      background: linear-gradient(160deg, var(--dark) 60%, rgba(217,4,41,.05) 100%);
+      border-bottom: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+    .add-hero h1 { font-family:var(--font-h); font-size:clamp(3rem,7vw,5.5rem); letter-spacing:3px; line-height:.9; }
+    .add-hero h1 span { color:var(--red); }
+    .add-hero p { color:var(--gray); margin-top:1rem; max-width:520px; }
+
+    .add-body {
+      display: grid; grid-template-columns: 1fr 360px;
+      gap: 2rem; padding: 3rem 4rem;
+      position: relative; z-index: 1;
+    }
+
+    /* FORM */
+    .add-form { }
+    .form-section {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2rem; margin-bottom: 1.5rem;
+    }
+    .form-section-title {
+      font-family: var(--font-h); font-size: 1.4rem; letter-spacing: 2px;
+      margin-bottom: 1.5rem; display: flex; align-items: center; gap: .6rem;
+    }
+    .form-section-title i { color: var(--red); font-size: 1.3rem; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-field { margin-bottom: 1rem; }
+    .form-field:last-child { margin-bottom: 0; }
+    .form-field label {
+      display: block; font-size: .62rem; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gray); margin-bottom: .4rem;
+    }
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%; padding: 11px 14px;
+      background: var(--dark3); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-b); font-size: .85rem;
+      border-radius: 2px; outline: none; transition: border-color var(--tr);
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--red); }
+    .form-field input.err, .form-field select.err, .form-field textarea.err { border-color: #ff1744; }
+    .err-msg { font-size: .63rem; color: #ff1744; margin-top: 3px; display: none; }
+    .show-err .err-msg { display: block; }
+
+    /* Photo upload */
+    .photo-drop {
+      border: 2px dashed var(--border); border-radius: 4px;
+      padding: 2.5rem; text-align: center; cursor: pointer;
+      transition: all var(--tr); position: relative;
+    }
+    .photo-drop:hover, .photo-drop.drag-over { border-color: var(--red); background: rgba(217,4,41,.04); }
+    .photo-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .photo-drop i { font-size: 2.5rem; color: var(--gray); margin-bottom: .8rem; }
+    .photo-drop p { font-size: .82rem; color: var(--gray); }
+    .photo-drop span { font-size: .72rem; color: rgba(255,255,255,.2); }
+
+    .photo-previews {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-top: 1rem;
+    }
+    .photo-preview {
+      aspect-ratio: 4/3; border-radius: 2px; overflow: hidden;
+      position: relative; border: 2px solid var(--border);
+    }
+    .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-preview .rm-photo {
+      position: absolute; top: 4px; right: 4px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(0,0,0,.7); border: none;
+      color: #fff; font-size: .7rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .photo-preview.first-photo { border-color: var(--red); }
+    .first-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      font-size: .55rem; letter-spacing: 1px; text-transform: uppercase;
+      background: var(--red); color: #fff; text-align: center; padding: 2px;
+    }
+
+    /* submit btn */
+    .submit-wrap { display: flex; gap: 1rem; }
+    .submit-wrap .btn-primary { flex: 1; justify-content: center; font-size: .85rem; padding: 16px; }
+    .submit-wrap .btn-outline  { justify-content: center; padding: 16px 24px; }
+
+    /* SIDEBAR PREVIEW */
+    .preview-card {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden; position: sticky; top: 90px;
+    }
+    .preview-img {
+      aspect-ratio: 4/3; overflow: hidden; background: var(--dark3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .preview-img img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-img .no-img { color: var(--dark4); font-size: 3rem; }
+    .preview-body { padding: 1.5rem; }
+    .preview-serie { font-size: .62rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); }
+    .preview-name { font-family: var(--font-h); font-size: 2rem; letter-spacing: 2px; line-height: 1; margin: .3rem 0; }
+    .preview-sub  { font-size: .75rem; color: var(--gray); margin-bottom: .8rem; }
+    .preview-price { font-family: var(--font-h); font-size: 1.6rem; color: var(--gold); }
+    .preview-label {
+      font-size: .62rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gray); border-top: 1px solid var(--border);
+      padding-top: .8rem; margin-top: .8rem;
+    }
+
+    /* success overlay */
+    .success-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,.95); align-items: center; justify-content: center;
+      flex-direction: column; text-align: center; padding: 2rem;
+    }
+    .success-overlay.show { display: flex; }
+    .success-overlay i { font-size: 5rem; color: #4caf50; margin-bottom: 1rem; }
+    .success-overlay h2 { font-family: var(--font-h); font-size: 3rem; letter-spacing: 3px; margin-bottom: .5rem; }
+    .success-overlay p { color: var(--gray); margin-bottom: 2rem; }
+
+    @media(max-width:900px){
+      .add-hero { padding: 120px 1.5rem 2.5rem; }
+      .add-body { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+      .form-row, .form-row.three { grid-template-columns: 1fr; }
+      .preview-card { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<!-- HERO -->
+<div class="add-hero">
+  <div class="section-tag">Vinde rapid</div>
+  <h1>Adauga<br><span>Anunt</span></h1>
+  <p>Completeaza formularul de mai jos. Anuntul tau va aparea imediat in catalogul BMW Moldova.</p>
+</div>
+
+<div class="add-body">
+
+  <!-- FORM -->
+  <div class="add-form">
+
+    <!-- Informatii generale -->
+    <div class="form-section">
+      <div class="form-section-title"><i class='bx bx-car'></i> Informatii Masina</div>
+
+      <div class="form-row">
+        <div class="form-field" id="f-series-wrap">
+          <label>Serie BMW *</label>
+          <select id="f-series">
+            <option value="">Alege seria...</option>
+            <option>E30</option><option>E34</option><option>E36</option>
+            <option>E39</option><option>E46</option><option>E60</option>
+            <option>E90</option><option>F10</option><option>F30</option>
+            <option>G20</option><option>G30</option><option>Alta</option>
+          </select>
+          <span class="err-msg">Selecteaza seria.</span>
+        </div>
+        <div class="form-field" id="f-model-wrap">
+          <label>Model (ex: 320i, 530d) *</label>
+          <input type="text" id="f-model" placeholder="320i">
+          <span class="err-msg">Introdu modelul.</span>
+        </div>
+      </div>
+
+      <div class="form-row three">
+        <div class="form-field" id="f-year-wrap">
+          <label>An fabricatie *</label>
+          <input type="number" id="f-year" placeholder="2005" min="1975" max="2025">
+          <span class="err-msg">An invalid (1975–2025).</span>
+        </div>
+        <div class="form-field">
+          <label>Pret (€) *</label>
+          <input type="number" id="f-price" placeholder="5000" min="100">
+          <span class="err-msg">Introdu pretul.</span>
+        </div>
+        <div class="form-field" id="f-km-wrap">
+          <label>Kilometri *</label>
+          <input type="number" id="f-km" placeholder="150000" min="0">
+          <span class="err-msg">Introdu km.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalii tehnice -->
+    <div class="form-section">
+      <div class="form-section-title"><i class='bx bx-cog'></i> Detalii Tehnice</div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Motor (ex: 2.0L 150cp)</label>
+          <input type="text" id="f-motor" placeholder="2.0L 150cp">
+        </div>
+        <div class="form-field">
+          <label>Combustibil</label>
+          <select id="f-combustibil">
+            <option value="">Alege...</option>
+            <option>Benzina</option><option>Diesel</option>
+            <option>Hibrid</option><option>Electric</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Cutie viteze</label>
+          <select id="f-cutie">
+            <option value="">Alege...</option>
+            <option>Manuala</option><option>Automata</option><option>Semi-automata</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Culoare</label>
+          <input type="text" id="f-culoare" placeholder="Negru, Alb, Argintiu...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Descriere -->
+    <div class="form-section">
+      <div class="form-section-title"><i class='bx bx-edit'></i> Descriere & Contact</div>
+      <div class="form-field" style="margin-bottom:1rem">
+        <label>Descriere *</label>
+        <textarea id="f-desc" rows="4" placeholder="Descrie starea masinii, dotarile, istoricul..."></textarea>
+        <span class="err-msg">Scrie cel putin 20 caractere.</span>
+      </div>
+      <div class="form-row">
+        <div class="form-field" id="f-phone-wrap">
+          <label>Telefon *</label>
+          <input type="tel" id="f-phone" placeholder="06X XXX XXX">
+          <span class="err-msg">Numar invalid.</span>
+        </div>
+        <div class="form-field">
+          <label>Localitate</label>
+          <input type="text" id="f-loc" placeholder="Chisinau, Balti...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Poze -->
+    <div class="form-section">
+      <div class="form-section-title"><i class='bx bx-image'></i> Fotografii</div>
+      <div class="photo-drop" id="photo-drop">
+        <input type="file" id="f-photos" accept="image/*" multiple>
+        <i class='bx bx-cloud-upload'></i>
+        <p>Trage fotografiile aici sau click pentru a alege</p>
+        <span>JPG, PNG, WEBP — max 5 poze</span>
+      </div>
+      <div class="photo-previews" id="photo-previews"></div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-wrap">
+      <button class="btn-primary" id="submit-btn"><span>✓ Publica Anuntul</span></button>
+      <button class="btn-outline" id="reset-btn">Reseteaza</button>
+    </div>
+
+  </div><!-- /form -->
+
+  <!-- SIDEBAR PREVIEW -->
+  <div>
+    <p style="font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:.8rem;">Previzualizare anunt:</p>
+    <div class="preview-card">
+      <div class="preview-img" id="prev-img-wrap">
+        <i class='bx bx-image preview-img no-img'></i>
+      </div>
+      <div class="preview-body">
+        <div class="preview-serie" id="prev-serie">Serie BMW</div>
+        <div class="preview-name"  id="prev-name">Model</div>
+        <div class="preview-sub"   id="prev-sub">An · Motor · km</div>
+        <div class="preview-price" id="prev-price">€ —</div>
+        <div class="preview-label">Previzualizare live</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /add-body -->
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <i class='bx bx-check-circle'></i>
+  <h2>Anunt Publicat!</h2>
+  <p>Masina ta apare acum in catalogul BMW Moldova.</p>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+    <a href="CarsPage.html" class="btn-primary"><span>Vezi Catalogul</span></a>
+    <button class="btn-outline" id="add-another">Adauga Alta Masina</button>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="db.js"></script>
+<script>
+  document.getElementById('header-mount').innerHTML = renderHeader('addcar');
+  document.getElementById('footer-mount').innerHTML = renderFooter();
+  initNav();
+
+  /* ==== PHOTO UPLOAD ==== */
+  let photoDataURLs = [];
+
+  const photoDrop   = document.getElementById('photo-drop');
+  const photoInput  = document.getElementById('f-photos');
+  const photoPrevs  = document.getElementById('photo-previews');
+
+  photoDrop.addEventListener('dragover',  e => { e.preventDefault(); photoDrop.classList.add('drag-over'); });
+  photoDrop.addEventListener('dragleave', () => photoDrop.classList.remove('drag-over'));
+  photoDrop.addEventListener('drop', e => {
+    e.preventDefault(); photoDrop.classList.remove('drag-over');
+    handleFiles([...e.dataTransfer.files]);
+  });
+  photoInput.addEventListener('change', () => handleFiles([...photoInput.files]));
+
+  function handleFiles(files) {
+    const allowed = files.filter(f => f.type.startsWith('image/')).slice(0, 5 - photoDataURLs.length);
+    allowed.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        photoDataURLs.push(e.target.result);
+        renderPhotoPreviews();
+        updateSidebarImg();
+      };
+      reader.readAsDataURL(file);
+    });
+    if(photoDataURLs.length >= 5) showToast('Maxim 5 fotografii!', 'info');
+  }
+
+  function renderPhotoPreviews() {
+    photoPrevs.innerHTML = photoDataURLs.map((src,i)=>`
+      <div class="photo-preview ${i===0?'first-photo':''}">
+        <img src="${src}">
+        <button class="rm-photo" data-i="${i}"><i class='bx bx-x'></i></button>
+        ${i===0?'<div class="first-label">Principala</div>':''}
+      </div>`).join('');
+    photoPrevs.querySelectorAll('.rm-photo').forEach(btn => {
+      btn.addEventListener('click', () => {
+        photoDataURLs.splice(parseInt(btn.dataset.i), 1);
+        renderPhotoPreviews(); updateSidebarImg();
+      });
+    });
+  }
+
+  function updateSidebarImg() {
+    const wrap = document.getElementById('prev-img-wrap');
+    if(photoDataURLs.length) {
+      wrap.innerHTML = `<img src="${photoDataURLs[0]}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+    } else {
+      wrap.innerHTML = `<i class='bx bx-image' style="font-size:3rem;color:var(--dark4)"></i>`;
+    }
+  }
+
+  /* ==== LIVE PREVIEW ==== */
+  function livePreview() {
+    const s = v => v || '—';
+    document.getElementById('prev-serie').textContent  = s(document.getElementById('f-series').value);
+    document.getElementById('prev-name').textContent   = s(document.getElementById('f-model').value);
+    const yr   = document.getElementById('f-year').value;
+    const mot  = document.getElementById('f-motor').value;
+    const km   = document.getElementById('f-km').value;
+    document.getElementById('prev-sub').textContent    = [yr,mot,km?Number(km).toLocaleString()+' km':''].filter(Boolean).join(' · ') || '—';
+    const pr = document.getElementById('f-price').value;
+    document.getElementById('prev-price').textContent  = pr ? fmtPrice(pr) : '€ —';
+  }
+
+  ['f-series','f-model','f-year','f-motor','f-km','f-price'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', livePreview);
+    if(el) el.addEventListener('change', livePreview);
+  });
+
+  /* ==== VALIDATION ==== */
+  function validate() {
+    let ok = true;
+    const checks = [
+      { id:'f-series',  wrap:'f-series-wrap', fn: v => v !== '' },
+      { id:'f-model',   wrap:'f-model-wrap',  fn: v => v.trim().length > 0 },
+      { id:'f-year',    wrap:'f-year-wrap',   fn: v => v >= 1975 && v <= 2025 },
+      { id:'f-price',   wrap:null,            fn: v => v > 0 },
+      { id:'f-km',      wrap:'f-km-wrap',     fn: v => v >= 0 },
+      { id:'f-desc',    wrap:null,            fn: v => v.trim().length >= 20 },
+      { id:'f-phone',   wrap:'f-phone-wrap',  fn: v => /^[0-9\s\+\-]{6,15}$/.test(v) },
+    ];
+    checks.forEach(({ id, wrap, fn }) => {
+      const el  = document.getElementById(id);
+      const val = el.value;
+      const wEl = wrap ? document.getElementById(wrap) : el.closest('.form-field');
+      if(!fn(val)) {
+        el.classList.add('err');
+        if(wEl) wEl.classList.add('show-err');
+        ok = false;
+      } else {
+        el.classList.remove('err');
+        if(wEl) wEl.classList.remove('show-err');
+      }
+    });
+    return ok;
+  }
+
+  /* ==== SUBMIT ==== */
+  document.getElementById('submit-btn').addEventListener('click', () => {
+    if(!validate()) { showToast('Completeaza campurile obligatorii!', 'info'); return; }
+
+    const car = {
+      series:      document.getElementById('f-series').value,
+      model:       document.getElementById('f-model').value.trim(),
+      year:        parseInt(document.getElementById('f-year').value),
+      price:       parseInt(document.getElementById('f-price').value),
+      km:          parseInt(document.getElementById('f-km').value),
+      motor:       document.getElementById('f-motor').value.trim(),
+      combustibil: document.getElementById('f-combustibil').value,
+      cutie:       document.getElementById('f-cutie').value,
+      culoare:     document.getElementById('f-culoare').value.trim(),
+      desc:        document.getElementById('f-desc').value.trim(),
+      phone:       document.getElementById('f-phone').value.trim(),
+      loc:         document.getElementById('f-loc').value.trim(),
+      imgs:        photoDataURLs,
+      badge:       'Nou Adaugat',
+    };
+
+    BMWDB.Cars.add(car);
+    document.getElementById('success-overlay').classList.add('show');
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    document.querySelectorAll('.add-form input, .add-form select, .add-form textarea').forEach(el => el.value = '');
+    photoDataURLs = [];
+    renderPhotoPreviews();
+    updateSidebarImg();
+    livePreview();
+    document.querySelectorAll('.err').forEach(el=>el.classList.remove('err'));
+    document.querySelectorAll('.show-err').forEach(el=>el.classList.remove('show-err'));
+  });
+
+  document.getElementById('add-another').addEventListener('click', () => {
+    document.getElementById('success-overlay').classList.remove('show');
+    document.getElementById('reset-btn').click();
+  });
+</script>
+</body>
+</html>

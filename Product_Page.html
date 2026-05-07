@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalii Masina — BMW Moldova</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .product-hero {
+      padding-top: 70px;
+      min-height: 65vh;
+      position: relative;
+      display: flex; align-items: flex-end;
+      overflow: hidden;
+    }
+    .product-hero-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--dark) 20%, transparent 70%),
+                  linear-gradient(to right, var(--dark) 30%, transparent 80%);
+      z-index: 1;
+    }
+    .product-hero-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(.6) saturate(.7);
+    }
+    .product-hero-content {
+      position: relative; z-index: 2;
+      padding: 3rem 4rem; max-width: 600px;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 1.5rem;
+      transition: color var(--tr);
+    }
+    .back-btn:hover { color: var(--red); }
+    .product-badge {
+      display: inline-block; font-size: .58rem; letter-spacing: 2px;
+      text-transform: uppercase; padding: 4px 12px;
+      background: var(--red); color: #fff; margin-bottom: .8rem;
+    }
+    .product-serie { font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); }
+    .product-title { font-family: var(--font-h); font-size: clamp(3rem,8vw,6rem); letter-spacing: 3px; line-height: .9; color: #fff; }
+    .product-year  { font-size: 1rem; color: rgba(255,255,255,.45); margin-top: .4rem; }
+
+    /* gallery row */
+    .gallery-strip {
+      display: flex; gap: .4rem; padding: 1.5rem 4rem;
+      background: var(--dark2); border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .gallery-strip::-webkit-scrollbar { height: 3px; }
+    .gallery-strip img {
+      height: 80px; width: auto; object-fit: cover;
+      border-radius: 2px; border: 2px solid transparent;
+      cursor: pointer; transition: all var(--tr); flex-shrink: 0;
+    }
+    .gallery-strip img.active { border-color: var(--red); }
+
+    /* main content */
+    .product-body {
+      display: grid; grid-template-columns: 1fr 380px;
+      gap: 3rem; padding: 3rem 4rem;
+      position: relative; z-index: 1;
+    }
+
+    /* specs */
+    .specs-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border); margin-bottom: 2rem;
+    }
+    .spec-box {
+      background: var(--dark2); padding: 1.2rem 1rem;
+    }
+    .spec-lbl { font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 4px; }
+    .spec-val { font-size: 1rem; font-weight: 600; }
+
+    .product-desc { font-size: .88rem; color: var(--gray); line-height: 1.85; margin-bottom: 2rem; }
+
+    /* reviews section */
+    .reviews-section { margin-top: 1rem; }
+    .reviews-section h3 { font-family: var(--font-h); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 1.5rem; }
+    .review-summary {
+      display: flex; align-items: center; gap: 2rem;
+      padding: 1.5rem; background: var(--dark2);
+      border: 1px solid var(--border); border-radius: 2px;
+      margin-bottom: 1.5rem;
+    }
+    .avg-big { font-family: var(--font-h); font-size: 4rem; color: var(--gold); line-height: 1; }
+    .avg-stars { font-size: 1.3rem; color: var(--gold); margin-bottom: .3rem; }
+    .avg-sub  { font-size: .72rem; color: var(--gray); }
+
+    .review-form {
+      padding: 1.5rem; background: var(--dark2);
+      border: 1px solid var(--border); border-radius: 2px; margin-bottom: 1.5rem;
+    }
+    .review-form h4 { font-size: .65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 1rem; }
+
+    .star-picker { display: flex; gap: 4px; margin-bottom: .8rem; flex-direction: row-reverse; justify-content: flex-end; }
+    .star-picker input { display: none; }
+    .star-picker label { font-size: 1.8rem; color: var(--dark4); cursor: pointer; transition: color .15s; }
+    .star-picker label:hover,
+    .star-picker label:hover ~ label,
+    .star-picker input:checked ~ label { color: var(--gold); }
+
+    .reviews-list { display: flex; flex-direction: column; gap: .8rem; }
+    .rev-card {
+      padding: 1rem 1.2rem; background: var(--dark2);
+      border: 1px solid var(--border); border-left: 3px solid var(--red);
+      border-radius: 2px;
+    }
+    .rev-stars { color: var(--gold); font-size: .85rem; margin-bottom: 4px; }
+    .rev-text  { font-size: .85rem; line-height: 1.7; }
+    .rev-date  { font-size: .65rem; color: rgba(255,255,255,.25); margin-top: 4px; }
+
+    /* sidebar */
+    .product-sidebar { }
+    .price-card {
+      background: var(--dark2); border: 1px solid var(--border);
+      padding: 2rem; border-radius: 2px; margin-bottom: 1.5rem;
+      position: sticky; top: 90px;
+    }
+    .price-big { font-family: var(--font-h); font-size: 3rem; color: var(--gold); letter-spacing: 2px; }
+    .price-label { font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: .3rem; }
+    .price-card .btn-primary, .price-card .btn-outline { width: 100%; justify-content: center; margin-bottom: .6rem; }
+    .price-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+    .info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .5rem 0; border-bottom: 1px solid var(--border);
+      font-size: .8rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-lbl { color: var(--gray); }
+    .info-val { font-weight: 600; }
+
+    /* related cars */
+    .related-section { padding: 3rem 4rem; background: var(--dark2); }
+    .related-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5px; background: var(--border); }
+    .related-card {
+      background: var(--dark3); overflow: hidden; position: relative;
+      aspect-ratio: 4/3; cursor: pointer; transition: all var(--tr);
+    }
+    .related-card img { width:100%; height:100%; object-fit:cover; filter:brightness(.7); transition:all var(--tr); }
+    .related-card:hover img { transform:scale(1.05); filter:brightness(.5); }
+    .related-info {
+      position: absolute; bottom:0; left:0; right:0; padding:1rem;
+      background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 100%);
+    }
+    .related-name { font-family:var(--font-h); font-size:1.4rem; letter-spacing:2px; color:#fff; }
+    .related-price { font-size:.8rem; color:var(--gold); }
+
+    @media(max-width:900px){
+      .product-body { grid-template-columns:1fr; padding:2rem 1.5rem; }
+      .product-hero-content { padding:2rem 1.5rem; }
+      .gallery-strip { padding:1rem 1.5rem; }
+      .specs-grid { grid-template-columns:1fr 1fr; }
+      .related-grid { grid-template-columns:1fr 1fr; }
+      .related-section { padding:3rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<!-- HERO -->
+<div class="product-hero" id="product-hero">
+  <div class="product-hero-bg"></div>
+  <img class="product-hero-img" id="hero-img" src="" alt="">
+  <div class="product-hero-content">
+    <a href="CarsPage.html" class="back-btn"><i class='bx bx-arrow-back'></i> Inapoi la catalog</a>
+    <div id="hero-badge" class="product-badge" style="display:none"></div>
+    <div class="product-serie" id="hero-serie"></div>
+    <div class="product-title" id="hero-name"></div>
+    <div class="product-year" id="hero-year"></div>
+  </div>
+</div>
+
+<!-- GALLERY STRIP -->
+<div class="gallery-strip" id="gallery-strip"></div>
+
+<!-- BODY -->
+<div class="product-body">
+  <div class="product-main">
+
+    <!-- SPECS -->
+    <div class="specs-grid" id="specs-grid"></div>
+
+    <!-- DESC -->
+    <p class="product-desc" id="product-desc"></p>
+
+    <!-- REVIEWS -->
+    <div class="reviews-section">
+      <h3>Recenzii</h3>
+      <div class="review-summary">
+        <div class="avg-big" id="avg-num">—</div>
+        <div>
+          <div class="avg-stars" id="avg-stars"></div>
+          <div class="avg-sub" id="avg-sub">Nicio recenzie inca</div>
+        </div>
+      </div>
+      <div class="review-form">
+        <h4>Lasa o Recenzie</h4>
+        <div class="star-picker" id="star-picker">
+          <input type="radio" name="rev-star" id="rs5" value="5"><label for="rs5">★</label>
+          <input type="radio" name="rev-star" id="rs4" value="4"><label for="rs4">★</label>
+          <input type="radio" name="rev-star" id="rs3" value="3"><label for="rs3">★</label>
+          <input type="radio" name="rev-star" id="rs2" value="2"><label for="rs2">★</label>
+          <input type="radio" name="rev-star" id="rs1" value="1"><label for="rs1">★</label>
+        </div>
+        <div class="form-field" style="margin-bottom:.8rem;">
+          <textarea id="rev-text" rows="3" placeholder="Impartaseste experienta ta cu aceasta masina..."></textarea>
+        </div>
+        <button class="btn-primary" id="submit-rev"><span>Trimite Recenzia</span></button>
+      </div>
+      <div class="reviews-list" id="reviews-list"></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="product-sidebar">
+    <div class="price-card">
+      <div class="price-label">Pret de vanzare</div>
+      <div class="price-big" id="sb-price"></div>
+      <hr class="price-divider">
+      <a href="tel:068264001" class="btn-primary" style="display:flex;margin-bottom:.6rem;text-decoration:none;"><span>📞 Suna Acum — 068 264 001</span></a>
+      <a href="index.html#contact" class="btn-outline" style="display:flex;text-decoration:none;justify-content:center;margin-bottom:.6rem;">Trimite Mesaj</a>
+      <hr class="price-divider">
+      <div class="info-row"><span class="info-lbl">Localitate</span><span class="info-val">Chisinau</span></div>
+      <div class="info-row"><span class="info-lbl">Status</span><span class="info-val" style="color:#4caf50">● Disponibil</span></div>
+      <div class="info-row"><span class="info-lbl">Vizualizari</span><span class="info-val" id="sb-views">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED -->
+<div class="related-section">
+  <div class="section-header" style="padding:0 0 2rem;">
+    <div>
+      <div class="section-tag">Mai multe</div>
+      <h2 class="section-title">Masini similare</h2>
+    </div>
+    <a href="CarsPage.html" class="btn-outline">Toate masinile</a>
+  </div>
+  <div class="related-grid" id="related-grid"></div>
+</div>
+
+<div id="footer-mount"></div>
+
+<script src="db.js"></script>
+<script>
+  document.getElementById('header-mount').innerHTML = renderHeader('cars');
+  document.getElementById('footer-mount').innerHTML = renderFooter();
+  initNav();
+
+  const PLACEHOLDER = 'https://via.placeholder.com/900x500/111/1a1a1a?text=BMW';
+  const params = new URLSearchParams(location.search);
+  const carId  = params.get('id');
+
+  function renderStars(avg) {
+    let s=''; for(let i=1;i<=5;i++) s+= i<=Math.round(avg)?'★':'☆'; return s;
+  }
+
+  function loadCar() {
+    const car = carId ? BMWDB.Cars.getById(carId) : BMWDB.Cars.getActive()[0];
+    if(!car) { document.body.innerHTML = '<p style="padding:8rem;color:var(--gray)">Masina nu a fost gasita. <a href="CarsPage.html" style="color:var(--red)">Inapoi</a></p>'; return; }
+
+    document.title = `${car.series} ${car.model} — BMW Moldova`;
+
+    // hero
+    const img = (car.imgs && car.imgs.length) ? car.imgs[0] : PLACEHOLDER;
+    document.getElementById('hero-img').src = img;
+    document.getElementById('hero-img').onerror = function(){ this.src = PLACEHOLDER; };
+    document.getElementById('hero-serie').textContent = car.series;
+    document.getElementById('hero-name').textContent  = car.model;
+    document.getElementById('hero-year').textContent  = `${car.year} · ${car.motor} · ${Number(car.km).toLocaleString()} km`;
+    if(car.badge) {
+      const b = document.getElementById('hero-badge');
+      b.textContent = car.badge; b.style.display = 'inline-block';
+    }
+
+    // gallery
+    const imgs = (car.imgs && car.imgs.length) ? car.imgs : [img, img, img];
+    const strip = document.getElementById('gallery-strip');
+    imgs.forEach((src,i) => {
+      const el = document.createElement('img');
+      el.src = src; if(i===0) el.classList.add('active');
+      el.onerror = function(){ this.src = PLACEHOLDER; };
+      el.addEventListener('click', () => {
+        strip.querySelectorAll('img').forEach(x=>x.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('hero-img').src = src;
+      });
+      strip.appendChild(el);
+    });
+
+    // specs
+    document.getElementById('specs-grid').innerHTML = [
+      ['An fabricatie', car.year],
+      ['Motor', car.motor],
+      ['Kilometri', Number(car.km).toLocaleString() + ' km'],
+      ['Cutie viteze', car.cutie || '—'],
+      ['Combustibil', car.combustibil || '—'],
+      ['Culoare', car.culoare || '—'],
+    ].map(([l,v])=>`
+      <div class="spec-box">
+        <div class="spec-lbl">${l}</div>
+        <div class="spec-val">${v}</div>
+      </div>`).join('');
+
+    document.getElementById('product-desc').textContent = car.desc || 'Detalii suplimentare disponibile la telefon.';
+    document.getElementById('sb-price').textContent = fmtPrice(car.price);
+
+    // views counter
+    const vk = 'views_' + car.id;
+    const views = (parseInt(localStorage.getItem(vk)) || 0) + 1;
+    localStorage.setItem(vk, views);
+    document.getElementById('sb-views').textContent = views;
+
+    // reviews
+    renderReviews(car.id);
+
+    // related
+    const related = BMWDB.Cars.getActive().filter(c => c.id !== car.id).slice(0,3);
+    document.getElementById('related-grid').innerHTML = related.map(c=>`
+      <a href="Product_Page.html?id=${c.id}" class="related-card">
+        <img src="${(c.imgs&&c.imgs.length)?c.imgs[0]:PLACEHOLDER}" onerror="this.src='${PLACEHOLDER}'" alt="">
+        <div class="related-info">
+          <div class="related-name">${c.series} ${c.model}</div>
+          <div class="related-price">${fmtPrice(c.price)}</div>
+        </div>
+      </a>`).join('');
+
+    // review form
+    document.getElementById('submit-rev').addEventListener('click', () => {
+      const star = document.querySelector('input[name="rev-star"]:checked');
+      const text = document.getElementById('rev-text').value.trim();
+      if(!star) { showToast('Selecteaza stele!', 'info'); return; }
+      if(text.length < 3) { showToast('Scrie cel putin 3 caractere!', 'info'); return; }
+      BMWDB.Reviews.add(car.id, { rating: star.value, text });
+      renderReviews(car.id);
+      document.querySelectorAll('input[name="rev-star"]').forEach(r=>r.checked=false);
+      document.getElementById('rev-text').value='';
+      showToast('Recenzie salvata! Multumim!', 'success');
+    });
+  }
+
+  function renderReviews(carId) {
+    const revs = BMWDB.Reviews.getForCar(carId);
+    const avg  = BMWDB.Reviews.avgRating(carId);
+    document.getElementById('avg-num').textContent   = revs.length ? avg.toFixed(1) : '—';
+    document.getElementById('avg-stars').textContent = renderStars(avg);
+    document.getElementById('avg-sub').textContent   = revs.length ? `${revs.length} ${revs.length===1?'recenzie':'recenzii'}` : 'Nicio recenzie inca';
+    document.getElementById('reviews-list').innerHTML = revs.length
+      ? revs.map(r=>`
+          <div class="rev-card">
+            <div class="rev-stars">${renderStars(r.rating)}</div>
+            <div class="rev-text">${r.text}</div>
+            <div class="rev-date">${fmtDate(r.date)}</div>
+          </div>`).join('')
+      : '<p style="color:var(--gray);font-size:.82rem">Fii primul care lasa o recenzie pentru aceasta masina!</p>';
+  }
+
+  loadCar();
+</script>
+</body>
+</html>

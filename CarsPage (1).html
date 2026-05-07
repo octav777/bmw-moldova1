@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automobile — BMW Moldova</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ---- PAGE HERO ---- */
+    .page-hero {
+      padding: 140px 4rem 4rem;
+      background: linear-gradient(160deg, var(--dark) 60%, rgba(217,4,41,.06) 100%);
+      border-bottom: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+    .page-hero .section-tag { margin-bottom: .6rem; }
+    .page-hero h1 { font-family: var(--font-h); font-size: clamp(3rem,8vw,6rem); letter-spacing: 3px; line-height: .9; }
+    .page-hero h1 span { color: var(--red); }
+    .page-hero p { color: var(--gray); margin-top: 1rem; font-size: .9rem; }
+
+    /* ---- FILTER BAR ---- */
+    .filter-bar {
+      position: sticky; top: 70px; z-index: 500;
+      background: var(--dark2); border-bottom: 1px solid var(--border);
+      padding: 1rem 4rem;
+      display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;
+    }
+    .filter-chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .chip {
+      padding: 6px 16px; border: 1px solid var(--border); border-radius: 2px;
+      font-size: .7rem; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--gray); background: transparent; cursor: pointer;
+      transition: all var(--tr); font-family: var(--font-b);
+    }
+    .chip:hover, .chip.active { border-color: var(--red); color: var(--red); background: rgba(217,4,41,.08); }
+
+    .filter-right { display: flex; gap: .7rem; margin-left: auto; flex-wrap: wrap; }
+    .filter-right select, .filter-right input {
+      padding: 7px 14px; background: var(--dark3); border: 1px solid var(--border);
+      color: var(--white); font-size: .75rem; font-family: var(--font-b);
+      border-radius: 2px; outline: none; cursor: pointer;
+      transition: border-color var(--tr);
+    }
+    .filter-right select:hover, .filter-right input:focus { border-color: var(--red); }
+    .filter-right input { width: 200px; }
+    .filter-right input::placeholder { color: var(--gray); }
+
+    .results-count { font-size: .72rem; color: var(--gray); letter-spacing: 1px; white-space: nowrap; }
+
+    /* ---- CARS GRID ---- */
+    .cars-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5px; background: var(--border);
+      position: relative; z-index: 1;
+      min-height: 400px;
+    }
+    .car-card {
+      background: var(--dark2); position: relative;
+      overflow: hidden; cursor: pointer; aspect-ratio: 4/3;
+      transition: all var(--tr);
+    }
+    .car-card.hidden { display: none; }
+
+    .car-img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .65s cubic-bezier(.4,0,.2,1), filter var(--tr);
+      filter: brightness(.72) saturate(.8);
+    }
+    .car-card:hover .car-img { transform: scale(1.08); filter: brightness(.45) saturate(.5); }
+
+    .car-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.92) 0%, transparent 55%);
+    }
+    .car-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      font-size: .58rem; letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 10px; background: var(--red); color: #fff;
+    }
+    .car-info {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 1.4rem;
+      transform: translateY(14px); transition: transform var(--tr);
+    }
+    .car-card:hover .car-info { transform: translateY(0); }
+    .car-serie { font-size: .62rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 3px; }
+    .car-name { font-family: var(--font-h); font-size: 1.9rem; letter-spacing: 2px; color: #fff; line-height: 1; }
+    .car-sub  { font-size: .72rem; color: rgba(255,255,255,.45); margin: 4px 0 6px; }
+    .car-rating-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .car-stars { font-size: .72rem; color: var(--gold); letter-spacing: 1px; }
+    .car-rev-cnt { font-size: .62rem; color: rgba(255,255,255,.35); }
+    .car-price { font-family: var(--font-h); font-size: 1.5rem; letter-spacing: 1px; color: var(--gold); }
+
+    .car-actions {
+      position: absolute; top: 1rem; right: 1rem;
+      display: flex; flex-direction: column; gap: .5rem;
+      opacity: 0; transform: translateX(10px);
+      transition: all var(--tr);
+    }
+    .car-card:hover .car-actions { opacity: 1; transform: translateX(0); }
+
+    /* empty state */
+    .empty-state {
+      display: none; grid-column: 1/-1;
+      padding: 5rem; text-align: center;
+    }
+    .empty-state i { font-size: 3rem; color: var(--dark4); margin-bottom: 1rem; }
+    .empty-state p { color: var(--gray); }
+
+    /* ---- LIGHTBOX ---- */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 8000;
+      background: rgba(0,0,0,.96);
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--tr);
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lb-inner {
+      max-width: 960px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      transform: scale(.96); transition: transform var(--tr);
+    }
+    .lightbox.open .lb-inner { transform: scale(1); }
+
+    .lb-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+    .lb-serie { font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 4px; }
+    .lb-name  { font-family: var(--font-h); font-size: 2.8rem; letter-spacing: 2px; color: #fff; }
+    .lb-close {
+      font-size: 1.6rem; color: var(--gray); background: none; border: none;
+      cursor: pointer; transition: color var(--tr); line-height: 1;
+    }
+    .lb-close:hover { color: var(--red); }
+
+    .lb-body { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; }
+
+    /* gallery */
+    .lb-gallery {}
+    .lb-main-img {
+      width: 100%; aspect-ratio: 16/10; object-fit: cover;
+      border-radius: 2px; margin-bottom: .5rem;
+      transition: opacity .2s;
+    }
+    .lb-thumbs { display: flex; gap: .4rem; }
+    .lb-thumb {
+      flex: 1; aspect-ratio: 16/9; overflow: hidden;
+      border: 2px solid transparent; border-radius: 2px;
+      cursor: pointer; transition: border-color var(--tr);
+    }
+    .lb-thumb.active { border-color: var(--red); }
+    .lb-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* details */
+    .lb-details { display: flex; flex-direction: column; }
+    .lb-price { font-family: var(--font-h); font-size: 2.2rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 1rem; }
+    .lb-specs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: 1.2rem;
+    }
+    .spec { padding: .7rem; background: var(--dark3); border: 1px solid var(--border); border-radius: 2px; }
+    .spec-lbl { font-size: .58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
+    .spec-val { font-size: .9rem; font-weight: 600; margin-top: 2px; }
+
+    .lb-desc { font-size: .82rem; color: var(--gray); line-height: 1.75; margin-bottom: 1.2rem; }
+
+    .lb-contact { display: flex; gap: .6rem; margin-bottom: 1.2rem; }
+
+    /* reviews in lightbox */
+    .lb-reviews { border-top: 1px solid var(--border); padding-top: 1rem; }
+    .lb-reviews h4 { font-size: .65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: .8rem; }
+
+    .star-picker { display: flex; gap: 3px; margin-bottom: .7rem; flex-direction: row-reverse; justify-content: flex-end; }
+    .star-picker input { display: none; }
+    .star-picker label { font-size: 1.5rem; color: var(--dark4); cursor: pointer; transition: color .15s; }
+    .star-picker label:hover,
+    .star-picker label:hover ~ label,
+    .star-picker input:checked ~ label { color: var(--gold); }
+
+    .rev-textarea {
+      width: 100%; padding: 9px 12px; background: var(--dark3);
+      border: 1px solid var(--border); color: var(--white);
+      font-size: .8rem; font-family: var(--font-b); border-radius: 2px;
+      resize: none; outline: none; transition: border-color var(--tr);
+    }
+    .rev-textarea:focus { border-color: var(--red); }
+
+    .rev-list { margin-top: .8rem; max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; }
+    .rev-item {
+      padding: .6rem .8rem; background: var(--dark3);
+      border-left: 2px solid var(--red); border-radius: 2px;
+    }
+    .rev-stars { font-size: .7rem; color: var(--gold); }
+    .rev-text  { font-size: .75rem; color: var(--gray); margin-top: 2px; }
+    .rev-date  { font-size: .6rem; color: rgba(255,255,255,.2); margin-top: 2px; }
+
+    @media(max-width:900px){
+      .filter-bar { padding: 1rem 1.5rem; }
+      .page-hero  { padding: 120px 1.5rem 3rem; }
+      .lb-body    { grid-template-columns: 1fr; }
+      .filter-right input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER (injected by JS) -->
+<div id="header-mount"></div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="section-tag">Catalog</div>
+  <h1>Alege<br><span>BMW-ul</span><br>Tau</h1>
+  <p id="cars-subtitle">Se incarca...</p>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-chips" id="series-chips">
+    <button class="chip active" data-series="all">Toate</button>
+    <button class="chip" data-series="E46">E46</button>
+    <button class="chip" data-series="E39">E39</button>
+    <button class="chip" data-series="E60">E60</button>
+    <button class="chip" data-series="F30">F30</button>
+    <button class="chip" data-series="G30">G30</button>
+  </div>
+  <div class="filter-right">
+    <input type="search" id="search-input" placeholder="🔍  Cauta model...">
+    <select id="year-filter">
+      <option value="">An: Toti</option>
+      <option value="2020,9999">2020+</option>
+      <option value="2015,2019">2015–2019</option>
+      <option value="2010,2014">2010–2014</option>
+      <option value="2000,2009">2000–2009</option>
+      <option value="0,1999">Sub 2000</option>
+    </select>
+    <select id="price-sort">
+      <option value="">Sort: Default</option>
+      <option value="low">Pret: Mic → Mare</option>
+      <option value="high">Pret: Mare → Mic</option>
+    </select>
+    <span class="results-count" id="results-count"></span>
+  </div>
+</div>
+
+<!-- CARS GRID -->
+<div class="cars-grid" id="cars-grid">
+  <div class="empty-state" id="empty-state">
+    <i class='bx bx-car'></i>
+    <p>Nu am gasit masini cu aceste filtre.</p>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-inner">
+    <div class="lb-header">
+      <div>
+        <div class="lb-serie" id="lb-serie"></div>
+        <div class="lb-name"  id="lb-name"></div>
+      </div>
+      <button class="lb-close" id="lb-close"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="lb-body">
+      <div class="lb-gallery">
+        <img class="lb-main-img" id="lb-main-img" src="" alt="">
+        <div class="lb-thumbs" id="lb-thumbs"></div>
+      </div>
+      <div class="lb-details">
+        <div class="lb-price" id="lb-price"></div>
+        <div class="lb-specs" id="lb-specs"></div>
+        <div class="lb-desc" id="lb-desc"></div>
+        <div class="lb-contact">
+          <a href="tel:068264001" class="btn-primary"><span>📞 Suna Acum</span></a>
+          <a id="lb-details-link" href="#" class="btn-outline">Detalii Complete</a>
+        </div>
+        <div class="lb-reviews">
+          <h4>Recenzii</h4>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+            <span id="lb-avg-stars" style="color:var(--gold);font-size:1rem;"></span>
+            <span id="lb-avg-text" style="font-size:.75rem;color:var(--gray);"></span>
+          </div>
+          <div class="star-picker" id="star-picker">
+            <input type="radio" name="lb-star" id="s5" value="5"><label for="s5">★</label>
+            <input type="radio" name="lb-star" id="s4" value="4"><label for="s4">★</label>
+            <input type="radio" name="lb-star" id="s3" value="3"><label for="s3">★</label>
+            <input type="radio" name="lb-star" id="s2" value="2"><label for="s2">★</label>
+            <input type="radio" name="lb-star" id="s1" value="1"><label for="s1">★</label>
+          </div>
+          <textarea class="rev-textarea" id="rev-text" rows="2" placeholder="Scrie recenzia ta..."></textarea>
+          <button class="btn-ghost" id="submit-rev" style="margin-top:.5rem;width:100%;justify-content:center;">Trimite Recenzia</button>
+          <div class="rev-list" id="rev-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div id="footer-mount"></div>
+
+<script src="db.js"></script>
+<script>
+  // inject header/footer
+  document.getElementById('header-mount').innerHTML = renderHeader('cars');
+  document.getElementById('footer-mount').innerHTML = renderFooter();
+  initNav();
+
+  const PLACEHOLDER = 'https://via.placeholder.com/600x400/111/1a1a1a?text=BMW';
+
+  /* ===== RENDER CARS ===== */
+  let activeSeries = 'all';
+  let searchQ = '';
+  let yearRange = null;
+  let priceSort = '';
+  let currentCarId = null;
+
+  function getImg(car) {
+    return (car.imgs && car.imgs.length) ? car.imgs[0] : PLACEHOLDER + '+' + encodeURIComponent(car.series + '+' + car.model);
+  }
+
+  function renderStars(avg) {
+    let s = '';
+    for(let i=1;i<=5;i++) s += i<=Math.round(avg)?'★':'☆';
+    return s;
+  }
+
+  function renderCards() {
+    const grid = document.getElementById('cars-grid');
+    const empty = document.getElementById('empty-state');
+
+    let cars = BMWDB.Cars.getActive();
+
+    // series filter
+    if(activeSeries !== 'all') cars = cars.filter(c => c.series === activeSeries);
+
+    // search
+    if(searchQ) {
+      const q = searchQ.toLowerCase();
+      cars = cars.filter(c =>
+        c.model.toLowerCase().includes(q) ||
+        c.series.toLowerCase().includes(q) ||
+        (c.culoare||'').toLowerCase().includes(q)
+      );
+    }
+
+    // year
+    if(yearRange) cars = cars.filter(c => c.year >= yearRange[0] && c.year <= yearRange[1]);
+
+    // sort
+    if(priceSort === 'low')  cars.sort((a,b) => a.price - b.price);
+    if(priceSort === 'high') cars.sort((a,b) => b.price - a.price);
+
+    // clear old cards (keep empty-state)
+    [...grid.querySelectorAll('.car-card')].forEach(el => el.remove());
+    document.getElementById('results-count').textContent = `${cars.length} rezultate`;
+    document.getElementById('cars-subtitle').textContent =
+      `${BMWDB.Cars.getActive().length} automobile disponibile in stoc`;
+
+    empty.style.display = cars.length ? 'none' : 'flex';
+
+    cars.forEach(car => {
+      const avg = BMWDB.Reviews.avgRating(car.id);
+      const revs = BMWDB.Reviews.getForCar(car.id);
+      const img = getImg(car);
+      const card = document.createElement('div');
+      card.className = 'car-card';
+      card.dataset.id = car.id;
+      card.innerHTML = `
+        <img class="car-img" src="${img}" onerror="this.src='${PLACEHOLDER}'" alt="${car.series} ${car.model}">
+        <div class="car-overlay"></div>
+        ${car.badge ? `<span class="car-badge">${car.badge}</span>` : ''}
+        <div class="car-info">
+          <div class="car-serie">${car.series}</div>
+          <div class="car-name">${car.model}</div>
+          <div class="car-sub">${car.year} · ${car.motor}</div>
+          <div class="car-rating-row">
+            <span class="car-stars">${renderStars(avg)}</span>
+            <span class="car-rev-cnt">(${revs.length})</span>
+          </div>
+          <div class="car-price">${fmtPrice(car.price)}</div>
+        </div>
+        <div class="car-actions">
+          <button class="icon-btn open-lb" data-id="${car.id}" title="Detalii">
+            <i class='bx bx-expand'></i>
+          </button>
+          <a href="Product_Page.html?id=${car.id}" class="icon-btn" title="Pagina completa">
+            <i class='bx bx-link-external'></i>
+          </a>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    // open lightbox on card click
+    grid.querySelectorAll('.car-card').forEach(card => {
+      card.addEventListener('click', e => {
+        if(e.target.closest('.car-actions a, .car-actions button')) return;
+        openLightbox(card.dataset.id);
+      });
+    });
+    grid.querySelectorAll('.open-lb').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); openLightbox(btn.dataset.id); });
+    });
+  }
+
+  /* ===== LIGHTBOX ===== */
+  function openLightbox(carId) {
+    currentCarId = carId;
+    const car = BMWDB.Cars.getById(carId);
+    if(!car) return;
+
+    document.getElementById('lb-serie').textContent = car.series;
+    document.getElementById('lb-name').textContent  = car.model;
+    document.getElementById('lb-price').textContent = fmtPrice(car.price);
+    document.getElementById('lb-desc').textContent  = car.desc || '';
+    document.getElementById('lb-details-link').href = `Product_Page.html?id=${carId}`;
+
+    // specs
+    document.getElementById('lb-specs').innerHTML = `
+      <div class="spec"><div class="spec-lbl">An</div><div class="spec-val">${car.year}</div></div>
+      <div class="spec"><div class="spec-lbl">Motor</div><div class="spec-val">${car.motor}</div></div>
+      <div class="spec"><div class="spec-lbl">Km</div><div class="spec-val">${Number(car.km).toLocaleString()} km</div></div>
+      <div class="spec"><div class="spec-lbl">Cutie</div><div class="spec-val">${car.cutie||'—'}</div></div>
+      <div class="spec"><div class="spec-lbl">Combustibil</div><div class="spec-val">${car.combustibil||'—'}</div></div>
+      <div class="spec"><div class="spec-lbl">Culoare</div><div class="spec-val">${car.culoare||'—'}</div></div>`;
+
+    // gallery
+    const imgs = (car.imgs && car.imgs.length) ? car.imgs : [PLACEHOLDER + '+' + encodeURIComponent(car.series)];
+    document.getElementById('lb-main-img').src = imgs[0];
+    document.getElementById('lb-thumbs').innerHTML = imgs.map((src,i)=>`
+      <div class="lb-thumb ${i===0?'active':''}" data-src="${src}">
+        <img src="${src}" onerror="this.src='${PLACEHOLDER}'" alt="">
+      </div>`).join('');
+    document.querySelectorAll('.lb-thumb').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.lb-thumb').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById('lb-main-img').src = t.dataset.src;
+      });
+    });
+
+    renderReviews(carId);
+    document.querySelectorAll('input[name="lb-star"]').forEach(r=>r.checked=false);
+    document.getElementById('rev-text').value = '';
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function renderReviews(carId) {
+    const revs = BMWDB.Reviews.getForCar(carId);
+    const avg  = BMWDB.Reviews.avgRating(carId);
+    document.getElementById('lb-avg-stars').textContent = renderStars(avg);
+    document.getElementById('lb-avg-text').textContent  = avg ? `${avg.toFixed(1)} / 5 (${revs.length} recenzii)` : 'Fara recenzii inca';
+    document.getElementById('rev-list').innerHTML = revs.length
+      ? revs.map(r=>`
+          <div class="rev-item">
+            <div class="rev-stars">${renderStars(r.rating)}</div>
+            <div class="rev-text">${r.text}</div>
+            <div class="rev-date">${fmtDate(r.date)}</div>
+          </div>`).join('')
+      : '<div style="font-size:.75rem;color:var(--gray)">Fii primul care lasa o recenzie!</div>';
+  }
+
+  document.getElementById('lb-close').addEventListener('click', closeLB);
+  document.getElementById('lightbox').addEventListener('click', e => { if(e.target.id==='lightbox') closeLB(); });
+  function closeLB() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''; }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeLB(); });
+
+  document.getElementById('submit-rev').addEventListener('click', () => {
+    const star = document.querySelector('input[name="lb-star"]:checked');
+    const text = document.getElementById('rev-text').value.trim();
+    if(!star) { showToast('Selecteaza un numar de stele!', 'info'); return; }
+    if(text.length < 3) { showToast('Scrie cel putin 3 caractere!', 'info'); return; }
+    BMWDB.Reviews.add(currentCarId, { rating: star.value, text });
+    renderReviews(currentCarId);
+    renderCards(); // refresh stars on cards
+    document.querySelectorAll('input[name="lb-star"]').forEach(r=>r.checked=false);
+    document.getElementById('rev-text').value = '';
+    showToast('Recenzie adaugata! Multumim!', 'success');
+  });
+
+  /* ===== FILTERS ===== */
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      activeSeries = chip.dataset.series;
+      renderCards();
+    });
+  });
+  document.getElementById('search-input').addEventListener('input', e => { searchQ = e.target.value.trim(); renderCards(); });
+  document.getElementById('year-filter').addEventListener('change', e => {
+    yearRange = e.target.value ? e.target.value.split(',').map(Number) : null;
+    renderCards();
+  });
+  document.getElementById('price-sort').addEventListener('change', e => { priceSort = e.target.value; renderCards(); });
+
+  // initial render
+  renderCards();
+</script>
+</body>
+</html>

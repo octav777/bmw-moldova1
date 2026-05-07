@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servisuri — BMW Moldova</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .svc-hero {
+      padding: 130px 4rem 4rem;
+      position: relative; overflow: hidden;
+      background: linear-gradient(140deg, #0a0a0a 50%, rgba(217,4,41,.07) 100%);
+      border-bottom: 1px solid var(--border);
+      z-index: 1;
+    }
+    .svc-hero-accent {
+      position: absolute; right: -5%; top: 50%; transform: translateY(-50%);
+      font-family: var(--font-h); font-size: 22vw; letter-spacing: -10px;
+      color: rgba(217,4,41,.04); pointer-events: none; line-height: 1;
+      white-space: nowrap;
+    }
+    .svc-hero h1 {
+      font-family: var(--font-h); font-size: clamp(3rem,8vw,6.5rem);
+      letter-spacing: 3px; line-height: .9; position: relative; z-index: 1;
+    }
+    .svc-hero h1 span { color: var(--red); }
+    .svc-hero p { color: var(--gray); margin-top: 1rem; max-width: 500px; position: relative; z-index: 1; }
+    .svc-hero-btns { display: flex; gap: 1rem; margin-top: 2rem; position: relative; z-index: 1; }
+
+    /* SERVICES GRID */
+    .svc-section { padding: 4rem; position: relative; z-index: 1; }
+    .svc-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5px; background: var(--border);
+    }
+    .svc-card {
+      background: var(--dark2); padding: 2.5rem 2rem;
+      position: relative; overflow: hidden;
+      transition: all var(--tr); cursor: pointer;
+    }
+    .svc-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--red); transform: scaleX(0); transform-origin: left;
+      transition: transform var(--tr);
+    }
+    .svc-card:hover::after { transform: scaleX(1); }
+    .svc-card:hover { background: var(--dark3); }
+
+    .svc-num { font-family: var(--font-h); font-size: 3.5rem; color: rgba(217,4,41,.1); line-height: 1; margin-bottom: .8rem; letter-spacing: 2px; }
+    .svc-icon { font-size: 2rem; color: var(--red); margin-bottom: 1rem; }
+    .svc-card h3 { font-size: .92rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .6rem; }
+    .svc-card p  { font-size: .8rem; color: var(--gray); line-height: 1.75; margin-bottom: 1rem; }
+    .svc-price {
+      font-family: var(--font-h); font-size: 1.5rem; color: var(--gold);
+      letter-spacing: 1px; margin-bottom: 1rem;
+    }
+    .svc-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--red); transition: gap var(--tr);
+    }
+    .svc-link:hover { gap: .8rem; }
+
+    /* REQUEST FORM */
+    .request-section {
+      padding: 4rem; background: var(--dark2);
+      border-top: 1px solid var(--border);
+    }
+    .request-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .request-info h3 { font-family: var(--font-h); font-size: 2rem; letter-spacing: 2px; margin-bottom: .5rem; }
+    .request-info p { color: var(--gray); font-size: .85rem; line-height: 1.8; margin-bottom: 1.5rem; }
+
+    .contact-item { display: flex; align-items: center; gap: 1rem; padding: .8rem 0; border-top: 1px solid var(--border); }
+    .contact-icon { font-size: 1.2rem; color: var(--red); }
+    .contact-lbl { font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
+    .contact-val { font-size: .88rem; font-weight: 500; }
+
+    .req-form { display: flex; flex-direction: column; gap: .8rem; }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+
+    .req-field label { display: block; font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: .3rem; }
+    .req-field input, .req-field select, .req-field textarea {
+      width: 100%; padding: 11px 14px;
+      background: var(--dark3); border: 1px solid var(--border);
+      color: var(--white); font-family: var(--font-b); font-size: .85rem;
+      border-radius: 2px; outline: none; transition: border-color var(--tr);
+    }
+    .req-field input:focus, .req-field select:focus, .req-field textarea:focus { border-color: var(--red); }
+    .req-field input.err, .req-field select.err, .req-field textarea.err { border-color: #ff1744; }
+    .req-success { display: none; padding: 1rem; background: rgba(76,175,80,.1); border: 1px solid #4caf50; border-radius: 2px; color: #4caf50; font-size: .85rem; text-align: center; }
+    .req-success.show { display: block; }
+
+    /* TEAM */
+    .team-section { padding: 4rem; position: relative; z-index: 1; }
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5px; background: var(--border); }
+    .team-card {
+      background: var(--dark2); padding: 2rem; text-align: center;
+      transition: background var(--tr);
+    }
+    .team-card:hover { background: var(--dark3); }
+    .team-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--dark4); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem; font-size: 2rem; color: var(--gray);
+    }
+    .team-name { font-weight: 600; font-size: .9rem; margin-bottom: .3rem; }
+    .team-role { font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-bottom: .6rem; }
+    .team-exp  { font-size: .78rem; color: var(--gray); }
+
+    @media(max-width:900px){
+      .svc-hero  { padding: 120px 1.5rem 3rem; }
+      .svc-section, .request-section, .team-section { padding: 3rem 1.5rem; }
+      .request-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .form-row2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<!-- HERO — configurat via JS -->
+<div class="svc-hero">
+  <div class="svc-hero-accent" id="hero-accent"></div>
+  <div class="section-tag" id="hero-tag"></div>
+  <h1 id="hero-h1"></h1>
+  <p id="hero-p"></p>
+  <div class="svc-hero-btns">
+    <a href="tel:068264001" class="btn-primary"><span>📞 Suna Acum</span></a>
+    <a href="#request" class="btn-outline">Programeaza-te</a>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div class="svc-section">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">Ce facem</div>
+      <h2 class="section-title" id="svc-title"></h2>
+    </div>
+  </div>
+  <div class="svc-grid" id="svc-grid"></div>
+</div>
+
+<!-- TEAM -->
+<div class="team-section section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">Echipa</div>
+      <h2 class="section-title" id="team-title"></h2>
+    </div>
+  </div>
+  <div class="team-grid" id="team-grid"></div>
+</div>
+
+<!-- REQUEST FORM -->
+<div class="request-section" id="request">
+  <div class="section-header" style="margin-bottom:2rem;">
+    <div>
+      <div class="section-tag">Programare</div>
+      <h2 class="section-title">Programeaza<br>o Vizita</h2>
+    </div>
+  </div>
+  <div class="request-grid">
+    <div class="request-info">
+      <h3>Vino la noi</h3>
+      <p>Echipa noastra este pregatita sa te ajute cu orice problema la BMW-ul tau. Programeaza-te online sau suna-ne direct.</p>
+      <div class="contact-item"><div class="contact-icon"><i class='bx bx-phone'></i></div><div><div class="contact-lbl">Telefon</div><div class="contact-val">068 264 001</div></div></div>
+      <div class="contact-item"><div class="contact-icon"><i class='bx bx-map'></i></div><div><div class="contact-lbl">Adresa</div><div class="contact-val">Chisinau, Moldova</div></div></div>
+      <div class="contact-item"><div class="contact-icon"><i class='bx bx-time'></i></div><div><div class="contact-lbl">Program</div><div class="contact-val">Luni–Sâmbata: 9:00–18:00</div></div></div>
+    </div>
+    <form class="req-form" id="req-form" novalidate>
+      <div class="form-row2">
+        <div class="req-field"><label>Nume *</label><input type="text" id="r-name" placeholder="Ion Popescu"></div>
+        <div class="req-field"><label>Telefon *</label><input type="tel" id="r-phone" placeholder="06X XXX XXX"></div>
+      </div>
+      <div class="req-field"><label>Seria BMW</label><input type="text" id="r-series" placeholder="E46, E60, F30..."></div>
+      <div class="req-field">
+        <label>Serviciu dorit</label>
+        <select id="r-svc"><option value="">Alege serviciul...</option></select>
+      </div>
+      <div class="req-field"><label>Data preferata</label><input type="date" id="r-date"></div>
+      <div class="req-field"><label>Mesaj</label><textarea id="r-msg" rows="3" placeholder="Descrie problema sau serviciul dorit..."></textarea></div>
+      <button type="submit" class="btn-primary"><span>Trimite Cererea</span></button>
+      <div class="req-success" id="req-success">✔ Cererea a fost trimisa! Te contactam in curand.</div>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="db.js"></script>
+<script>
+  // ===== CONFIG PER PAGE =====
+  const PAGE = window._SVC_PAGE = 'servis'; window._SVC_PAGE; // set by each file
+
+  const CONFIGS = {
+    servis: {
+      activePage: 'services',
+      tag: 'Servicii Auto',
+      h1: 'Servis <span>BMW</span><br>Specializat',
+      accent: 'SERVIS',
+      p: 'Reparatii complete pentru orice model BMW. Tehnicieni certificati cu experienta de peste 8 ani.',
+      svcTitle: 'Servicii Mecanice',
+      services: [
+        { num:'01', icon:'bx-wrench',       title:'Schimb Ulei & Filtre',   desc:'Ulei original BMW, filtre aer, polen, combustibil. Revizie completa.',         price:'De la 300 lei' },
+        { num:'02', icon:'bx-cog',          title:'Reparatii Motor',        desc:'Diagnoza, garnituri chiuloasa, distributie, pompa apa, etansari.',             price:'De la 800 lei' },
+        { num:'03', icon:'bx-car',          title:'Cutie Viteze',           title2:'Automata & Manuala',  desc:'Reparatii cutie manuala si automata, schimb ulei cutie.',                price:'De la 600 lei' },
+        { num:'04', icon:'bx-disc',         title:'Frane & Ambreiaj',       desc:'Placute, discuri, calipers, ansamblu ambreiaj, cilindri.',                     price:'De la 200 lei' },
+        { num:'05', icon:'bx-refresh',      title:'Distributie',            desc:'Kit distributie complet, curea/lant, role, pompa apa.',                        price:'De la 1200 lei' },
+        { num:'06', icon:'bx-check-shield', title:'Diagnoza Completa',      desc:'Diagnoza BMW cu echipament profesional. Codare, resetare erori.',               price:'De la 150 lei' },
+      ],
+      teamTitle: 'Mecanici Experti',
+      team: [
+        { name:'Alexandru M.', role:'Mecanic Sef', exp:'12 ani experienta BMW', icon:'bx-user' },
+        { name:'Gheorghe P.', role:'Mecanic',    exp:'8 ani experienta',      icon:'bx-user' },
+        { name:'Vasile T.',   role:'Diagnoza',    exp:'6 ani experienta',      icon:'bx-user' },
+        { name:'Ion S.',      role:'Ucenic',      exp:'2 ani experienta',      icon:'bx-user' },
+      ],
+      svcOptions: ['Schimb Ulei', 'Reparatii Motor', 'Cutie Viteze', 'Frane', 'Distributie', 'Diagnoza', 'Altele'],
+    },
+
+    electrici: {
+      activePage: 'services',
+      tag: 'Electrici Auto',
+      h1: 'Electricieni<br><span>BMW</span>',
+      accent: 'ELECTRIC',
+      p: 'Diagnosticare si reparatii electrice pentru toate seriile BMW. Codari, programari, instalatii.',
+      svcTitle: 'Servicii Electrice',
+      services: [
+        { num:'01', icon:'bx-bolt',       title:'Diagnoza Electronica',   desc:'Citire si stergere erori BMW cu echipament profesional ISTA/INPA.',           price:'De la 150 lei' },
+        { num:'02', icon:'bx-chip',       title:'Codare & Programare',    desc:'Codare module, activare functii ascunse, programare chei, unitati.',           price:'De la 200 lei' },
+        { num:'03', icon:'bx-battery',    title:'Sistem Electrica',       desc:'Reparatii instalatie electrica, sigurante, relee, cablaje.',                   price:'De la 300 lei' },
+        { num:'04', icon:'bx-bulb',       title:'Faruri & Lumini',        desc:'Reglaj faruri xenon/LED, schimb becuri, adaptoare, angel eyes.',               price:'De la 150 lei' },
+        { num:'05', icon:'bx-desktop',    title:'Calculator & Unitati',   desc:'Reparatii ECU, DME, EGS, reprogramare, clone calculator.',                     price:'De la 500 lei' },
+        { num:'06', icon:'bx-radio',      title:'Multimedia & Navigation', desc:'Instalare GPS, CarPlay, Android Auto, amplificatoare, camere.',               price:'De la 400 lei' },
+      ],
+      teamTitle: 'Electricieni Specializati',
+      team: [
+        { name:'Andrei K.',   role:'Electrician Sef', exp:'10 ani BMW Electric', icon:'bx-user' },
+        { name:'Mihai F.',    role:'Codari BMW',      exp:'7 ani experienta',    icon:'bx-user' },
+        { name:'Sergiu B.',   role:'Multimedia',      exp:'5 ani experienta',    icon:'bx-user' },
+      ],
+      svcOptions: ['Diagnoza', 'Codare', 'Sistem electric', 'Faruri', 'Calculator ECU', 'Multimedia', 'Altele'],
+    },
+
+    motors: {
+      activePage: 'services',
+      tag: 'Motoristi',
+      h1: 'Specialisti<br><span>Motoare</span> BMW',
+      accent: 'MOTOR',
+      p: 'Reparatii complete ale motoarelor BMW. De la revizie simpla pana la rectificare si reparatie capitala.',
+      svcTitle: 'Servicii Motoare',
+      services: [
+        { num:'01', icon:'bx-cog',          title:'Revizie Motor',          desc:'Schimb ulei, filtre, bujii, inspectie completa motor BMW.',                   price:'De la 400 lei' },
+        { num:'02', icon:'bx-wrench',       title:'Chiulasa',               desc:'Rectificare, schimb garnitura chiulosa, supape, ghiduri.',                   price:'De la 2000 lei' },
+        { num:'03', icon:'bx-refresh',      title:'Distributie Completa',   desc:'Lant/curea distributie, intinzatoare, role, pompa apa originala.',           price:'De la 1500 lei' },
+        { num:'04', icon:'bx-water',        title:'Sistem Racire',          desc:'Termostat, radiator, pompa apa, furtunuri, vas expansiune.',                 price:'De la 400 lei' },
+        { num:'05', icon:'bx-wind',         title:'Turbocompresoare',       desc:'Reparatie sau inlocuire turbo, conducte intercooler, recirculare.',           price:'De la 600 lei' },
+        { num:'06', icon:'bx-search-alt',   title:'Diagnoza Motor',         desc:'Diagnoza completa, compresie, presiune ulei, analize.',                      price:'De la 200 lei' },
+      ],
+      teamTitle: 'Motoristi Experti',
+      team: [
+        { name:'Dumitru V.',  role:'Motorist Sef',    exp:'15 ani motoare BMW',  icon:'bx-user' },
+        { name:'Vlad C.',     role:'Motorist',        exp:'9 ani experienta',    icon:'bx-user' },
+        { name:'Octavian M.', role:'Turbo Expert',    exp:'6 ani experienta',    icon:'bx-user' },
+      ],
+      svcOptions: ['Revizie', 'Chiulasa', 'Distributie', 'Racire', 'Turbo', 'Diagnoza motor', 'Altele'],
+    },
+  };
+
+  const cfg = CONFIGS[PAGE] || CONFIGS.servis;
+
+  // inject header/footer
+  document.getElementById('header-mount').innerHTML = renderHeader(cfg.activePage);
+  document.getElementById('footer-mount').innerHTML = renderFooter();
+  initNav();
+
+  // hero
+  document.getElementById('hero-accent').textContent = cfg.accent;
+  document.getElementById('hero-tag').textContent    = cfg.tag;
+  document.getElementById('hero-h1').innerHTML       = cfg.h1;
+  document.getElementById('hero-p').textContent      = cfg.p;
+  document.getElementById('svc-title').textContent   = cfg.svcTitle;
+  document.getElementById('team-title').textContent  = cfg.teamTitle;
+  document.title = `${cfg.tag} — BMW Moldova`;
+
+  // services
+  document.getElementById('svc-grid').innerHTML = cfg.services.map(s=>`
+    <div class="svc-card">
+      <div class="svc-num">${s.num}</div>
+      <div class="svc-icon"><i class='bx ${s.icon}'></i></div>
+      <h3>${s.title}</h3>
+      <p>${s.desc}</p>
+      <div class="svc-price">${s.price}</div>
+      <a href="#request" class="svc-link">Programeaza-te <i class='bx bx-right-arrow-alt'></i></a>
+    </div>`).join('');
+
+  // team
+  document.getElementById('team-grid').innerHTML = cfg.team.map(t=>`
+    <div class="team-card">
+      <div class="team-avatar"><i class='bx ${t.icon}'></i></div>
+      <div class="team-name">${t.name}</div>
+      <div class="team-role">${t.role}</div>
+      <div class="team-exp">${t.exp}</div>
+    </div>`).join('');
+
+  // populate service select
+  const rSvc = document.getElementById('r-svc');
+  cfg.svcOptions.forEach(o => { const op=document.createElement('option'); op.textContent=o; rSvc.appendChild(op); });
+
+  // request form
+  document.getElementById('req-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name  = document.getElementById('r-name').value.trim();
+    const phone = document.getElementById('r-phone').value.trim();
+    let ok = true;
+    [['r-name', name.length>2], ['r-phone', /[0-9]{6}/.test(phone)]].forEach(([id, valid]) => {
+      const el = document.getElementById(id);
+      if(!valid) { el.classList.add('err'); ok=false; } else el.classList.remove('err');
+    });
+    if(!ok) { showToast('Completeaza Numele si Telefonul!', 'info'); return; }
+
+    BMWDB.Messages.add({
+      name, phone,
+      series:  document.getElementById('r-series').value,
+      service: rSvc.value,
+      date:    document.getElementById('r-date').value,
+      msg:     document.getElementById('r-msg').value,
+      page:    PAGE,
+    });
+    document.getElementById('req-form').reset();
+    document.getElementById('req-success').classList.add('show');
+    showToast('Cerere trimisa!', 'success');
+    setTimeout(()=>document.getElementById('req-success').classList.remove('show'), 5000);
+  });
+</script>
+</body>
+</html>
